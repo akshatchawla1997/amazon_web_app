@@ -10,29 +10,35 @@ const encryptedData = crypto.encryptedData;
 const generateJwtToken = crypto.generateJwtToken;
 
 class userService{
-    async signup(registerData){
-        return new Promise(async(resolve, reject)=>{
+    async signup(registerData) {
+        return new Promise(async (resolve, reject) => {
             try {
-                const checkUser = 'select email_id from users where emailid = ?'
-                const isUserExist = await execute( checkUser, [registerData.email])
-                if(isUserExist){
-                    resolve({"success":false, error:402, "message":"try with different mail"})
-                }else{
+                const checkUser = 'SELECT email_id FROM users WHERE email_id = ?';
+                const isUserExist = await execute(checkUser, [registerData.email]);
+                console.log(isUserExist);
+                if (isUserExist.length > 0) {
+                    reject({ "success": false, error: 402, "message": "Try with a different email" });
+                } else {
                     const payload = {
-                        email:registerData.email,
-                        password:registerData.password
-                    }
-                    const jwttoken = generateJwtToken(payload, "##$$ecomm$$##",'1hr')
-                    cipherText = encryptedData(registerData.password)
-                    registerquery = "insert into users (first_name, last_name, password, mobile_number, email_id, created_at, updated_at)value(?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);";
-                    const insertResult = await execute(registerquery, [registerData.firstname,registerData.lastname, registerData.cipherText, registerData.email ])
-                    return resolve({"success":true, "data":insertResult, "web_token":jwttoken, message:"data inserted successfully"})
+                        firstName: registerData.firstname,
+                        lastName: registerData.lastname,
+                        email: registerData.email,
+                        password: registerData.password,
+                        mobile: registerData.mobile
+                    };
+                    const currentDate = new Date();
+                    const jwttoken = generateJwtToken(payload, "##$$ecomm$$##", '1hr');
+                    let cipherText = await encryptedData(registerData.password);
+                    let registerquery = "INSERT INTO users (first_name, last_name, password, mobile_number, email_id, created_at, updated_at, is_admin, is_seller) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    const insertResult = await execute(registerquery, [payload.firstName, payload.lastName, cipherText, payload.mobile, payload.email, currentDate, currentDate, 0, 0]);
+                    return resolve({ "success": true, "data": insertResult, "web_token": jwttoken, message: "Data inserted successfully" });
                 }
-            }catch(e){
+            } catch (e) {
                 reject(e);
             }
-        })
+        });
     }
+    
 
     async login(userData){
         return new Promise(async(resolve, reject)=>{

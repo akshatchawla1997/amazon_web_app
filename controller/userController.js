@@ -15,19 +15,33 @@ class UserController{
         try{
             const registerData = request.body;
             const result = await userService.signup(registerData)
-            return result
+            if (result.success) {
+                // User registration was successful
+                response.status(200).json(result);
+              } else {
+                // User registration failed, return an error response
+                response.status(400).json(result);
+              }
+            } catch (e) {
+              // Handle unexpected errors
+              console.error(e);
+              response.status(500).json({ success: false, error: 500, message: "Internal server error" });
+            }
         }catch (e){
-            console.log(e)
+           return e
         }
-        
-    }
     async loginUser(request,response, next){
         try {
             const loginData = request.body;
             const result = await userService.login(loginData)
-            return result
+            if (result.success){
+                response.status(200).json(result);
+            }else{
+                response.status(400).json(result);
+            }
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            response.status(500).json({ success: false, error: 500, message: "Internal server error" });
         }
     }
 
@@ -35,9 +49,14 @@ class UserController{
         try {
             const updateData = request.body;
             const result = await userService.updateUser(updateData)
-            return result
+            if (result.success){
+                response.status(200).json(result);
+            }else{
+                response.status(400).json(result);
+            }
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            response.status(500).json({ success: false, error: 500, message: "Internal server error" });
         }
     }
 
@@ -45,9 +64,14 @@ class UserController{
         try{
             const userid = request.params
             const result = await userService.remove(userid)
-            return result
-        }catch (error){
-            return error
+            if (result.success){
+                response.status(200).json(result);
+            }else{
+                response.status(400).json(result);
+            }
+        } catch (error) {
+            console.log(error);
+            response.status(500).json({ success: false, error: 500, message: "Internal server error" });
         }
     }
 }

@@ -5,8 +5,8 @@ const encryptedData = async (password)=>{
         try{
             const secret_key = "#@maz0nPRimeIndia#"
             const cipherText = crypto_js.AES.encrypt(password, secret_key).toString()
-            const originalText = cipherText.toString(CryptoJS.enc.Utf8);
-            return originalText
+            // const originalText = cipherText.toString(CryptoJS.enc.Utf8);
+            return cipherText
         }catch(e){
             return e
         }   
